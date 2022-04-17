@@ -1,0 +1,6 @@
+tabulate==0.8.9
+pynput==1.7.6
+pyperclip==1.8.2
+win10toast==0.9
+openpyxl==3.0.9
+screeninfo==0.8
