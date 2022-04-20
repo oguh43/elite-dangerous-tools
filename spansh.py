@@ -5,6 +5,7 @@ import sys
 import json
 import time
 import atexit
+import argparse
 import tabulate
 import pyperclip
 
@@ -17,6 +18,24 @@ from openpyxl import load_workbook
 from screeninfo import get_monitors
 from win10toast import ToastNotifier
 from tkinter import filedialog, simpledialog, messagebox
+
+parser = argparse.ArgumentParser(description="Optional flags")
+parser.add_argument("--force-notify", help="Display toast notifications on multiple monitors.", action=argparse.BooleanOptionalAction, type=bool, default=False)
+parser.add_argument("--disable-toast", help="Disable toast notifications.", action=argparse.BooleanOptionalAction, type=bool, default=False)
+parser.add_argument("--disable-popup", help="Disable popup warnings.", action=argparse.BooleanOptionalAction, type=bool, default=False)
+args = parser.parse_args()
+
+def showerr(title, message):
+    if not vars(args)['disable_popup']:
+        messagebox.showerror(title, message)
+
+def showinf(title, message):
+    if not vars(args)['disable_popup']:
+        messagebox.showinfo(title, message)
+
+def showwarn(title, message):
+    if not vars(args)['disable_popup']:
+        messagebox.showwarning(title, message)
 
 def CSVtoJSON(path):
     data = []
@@ -47,9 +66,9 @@ def XLSXtoJSON(path,name):
 
 
 if len(get_monitors()) == 1:
-    display_toast = True
+    display_toast = True if not vars(args)("disable_toast") else False
 else:
-    display_toast = False
+    display_toast = False if not vars(args).get('force_notify') else True
 
 path = Path(__file__).parent
 
@@ -64,10 +83,10 @@ if file_path.endswith(".xlsx"):
 metadata_path = filedialog.askopenfilename(title="Select metadata file", filetypes=(("JSON files", "*.json"), ("all files", "*.*")))
 
 if file_path == "" or file_path is None:
-    messagebox.showerror(title="Error", message="You must select a file!")
+    showerr(title="Error", message="You must select a file!")
     sys.exit(1)
 if (worksheet_name == "" or worksheet_name is None) and file_path.endswith(".xlsx"):
-    messagebox.showerror(title="Error", message="You must select a worksheet name!")
+    showerr(title="Error", message="You must select a worksheet name!")
     sys.exit(1)
 if file_path.endswith(".xlsx"):
     excel_json = XLSXtoJSON(file_path,worksheet_name)
@@ -75,14 +94,14 @@ else:
     excel_json = CSVtoJSON(file_path)
 
 if metadata_path == "" or metadata_path is None:
-    messagebox.showinfo(title="No metadata", message="No metadata file selected, using default metadata!")
+    showinf(title="No metadata", message="No metadata file selected, using default metadata!")
     with open("metadata.json", "w+") as f:
         f.write("{}")
     h = sha256()
     h.update(json.dumps(excel_json).encode('utf-8'))
     metadata = {h.hexdigest():[0]}
     metadata_path = f"{path}\\metadata.json"
-    messagebox.showinfo(title="Success", message="Successfully created metadata file!")
+    showinf(title="Success", message="Successfully created metadata file!")
 else:
     with open(metadata_path, "r") as f:
         metadata = json.load(f)
@@ -91,11 +110,11 @@ h.update(json.dumps(excel_json).encode("utf-8"))
 current_metadata_key = h.hexdigest()
 current_key = metadata[current_metadata_key][-1] + 1
 
-messagebox.showwarning(title="Warning", message="Press ESC to exit, press N to go to next system, B to go back!")
+showwarn(title="Warning", message="Press ESC to exit, press N to go to next system, B to go back!")
 if display_toast:
-    messagebox.showerror(title="Error", message="Toast notifications are enabled!\nIf you press N before the toast dissapears, an exception will be thrown!")
+    showerr(title="Error", message="Toast notifications are enabled!\nIf you press N before the toast dissapears, an exception will be thrown!")
 else:
-    messagebox.showerror(title="Error", message="Toast notifications are not supported on multiple monitors!")
+    showerr(title="Error", message="Toast notifications are not supported on multiple monitors!")
 
 original_content = pyperclip.paste()
 
