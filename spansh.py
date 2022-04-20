@@ -112,7 +112,7 @@ current_key = metadata[current_metadata_key][-1] + 1
 
 showwarn(title="Warning", message="Press ESC to exit, press N to go to next system, B to go back!")
 if display_toast:
-    showerr(title="Error", message="Toast notifications are enabled!\nIf you press N before the toast dissapears, an exception will be thrown!")
+    showinf(title="Error", message="Toast notifications are enabled!")
 else:
     showerr(title="Error", message="Toast notifications are not supported on multiple monitors!")
 
@@ -132,21 +132,24 @@ def on_press(key):
         elif key.char == "n":
             render_next()
         elif key.char == "b":
+            if len(metadata[current_metadata_key]) <= 2:
+                return
             metadata[current_metadata_key].pop()
             metadata[current_metadata_key].pop()
             render_next("Displaying previous!")
     except AttributeError:
         pass
-    
+
+toast = ToastNotifier()
+
 def render_next(msg="Displaying next!"):
     os.system("cls")
     print(msg)
     current_key = metadata[current_metadata_key][-1] + 1
     metadata[current_metadata_key].append(len(metadata[current_metadata_key]))
     temp = json.loads(json.dumps(excel_json[current_key]))
-    toast = ToastNotifier()
     temp["Body Name"] = temp["Body Name"].partition(temp["System Name"])[2]
-    if temp["System Name"] == excel_json[current_key - 1]["System Name"]:
+    if temp["System Name"] == excel_json[current_key - 1]["System Name"] and msg == "Displaying next!":
         temp["System Name"] = "Current"
         if display_toast:
             try:
