@@ -91,7 +91,7 @@ h.update(json.dumps(excel_json).encode("utf-8"))
 current_metadata_key = h.hexdigest()
 current_key = metadata[current_metadata_key][-1] + 1
 
-messagebox.showwarning(title="Warning", message="Press ESC to exit, press N to go to next system!")
+messagebox.showwarning(title="Warning", message="Press ESC to exit, press N to go to next system, B to go back!")
 if display_toast:
     messagebox.showerror(title="Error", message="Toast notifications are enabled!\nIf you press N before the toast dissapears, an exception will be thrown!")
 else:
@@ -113,6 +113,7 @@ def on_press(key):
         elif key.char == "n":
             render_next()
         elif key.char == "b":
+            metadata[current_metadata_key].pop()
             metadata[current_metadata_key].pop()
             render_next("Displaying previous!")
     except AttributeError:
