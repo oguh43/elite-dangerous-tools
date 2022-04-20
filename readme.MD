@@ -1,3 +1,3 @@
 # TODO:
-- [ ] Add flags to bypass warnings
-- [ ] Add flag to force notifications
+- [x] Add flags to bypass warnings
+- [x] Add flag to force notifications
