@@ -108,7 +108,11 @@ else:
 h = sha256()
 h.update(json.dumps(excel_json).encode("utf-8"))
 current_metadata_key = h.hexdigest()
-current_key = metadata[current_metadata_key][-1] + 1
+if current_metadata_key in metadata:
+    current_key = metadata[current_metadata_key][-1] + 1
+else:
+    metadata[current_metadata_key] = [0]
+    current_key = metadata[current_metadata_key][-1] + 1
 
 showwarn(title="Warning", message="Press ESC to exit, press N to go to next system, B to go back!")
 if display_toast:
@@ -126,8 +130,8 @@ def safe_exit():
 atexit.register(safe_exit)
 
 def on_press(key):
-    try:
-        if key == keyboard.Key.esc:
+    try: 
+        if key.char == "*":
             sys.exit()
         elif key.char == "n":
             render_next()
@@ -144,6 +148,9 @@ toast = ToastNotifier()
 
 def render_next(msg="Displaying next!"):
     os.system("cls")
+    if len(metadata[current_metadata_key])+1 == len(excel_json):
+        print("You are done!")
+        return
     print(msg)
     current_key = metadata[current_metadata_key][-1] + 1
     metadata[current_metadata_key].append(len(metadata[current_metadata_key]))
@@ -172,6 +179,7 @@ def render_next(msg="Displaying next!"):
         temp.values()
     ]
     print(tabulate.tabulate(table,headers="firstrow",tablefmt="pretty"))
+    print(f'{current_key}/{len(excel_json)} | {str(current_key/len(excel_json)*100)}%')
     current_key += 1
     
 render_next()
