@@ -75,7 +75,7 @@ path = Path(__file__).parent
 root = tk.Tk()
 root.withdraw()
 
-file_path = filedialog.askopenfilename(title="Select excel file", filetypes=(("Excel files", "*.xlsx"), ("CSV files", "*.csv *.txt"), ("all files", "*.*")))
+file_path = filedialog.askopenfilename(title="Select csv file", filetypes=(("CSV files", "*.csv *.txt"), ("Excel files", "*.xlsx"), ("all files", "*.*")))
 worksheet_name = ""
 if file_path.endswith(".xlsx"):
     worksheet_name = simpledialog.askstring(title="Select worksheet name", prompt="Enter worksheet name")
@@ -114,7 +114,7 @@ else:
     metadata[current_metadata_key] = [0]
     current_key = metadata[current_metadata_key][-1] + 1
 
-showwarn(title="Warning", message="Press ESC to exit, press N to go to next system, B to go back!")
+showwarn(title="Warning", message="Press * to exit, press N to go to next system, B to go back!")
 if display_toast:
     showinf(title="Error", message="Toast notifications are enabled!")
 else:
@@ -174,12 +174,19 @@ def render_next(msg="Displaying next!"):
                 toast.show_toast(f"Head to {temp['System Name']}", f"Body: {temp['Body Name']}", duration=5,threaded=True)
     del temp["Distance To Arrival"]
     del temp["Jumps"]
+    print(temp["Estimated Scan Value"])
+    temp["Estimated Scan Value"] = str('{:,}'.format(int(temp["Estimated Scan Value"])).replace(',', ' '))
+    temp["Estimated Mapping Value"] = str('{:,}'.format(int(temp["Estimated Mapping Value"])).replace(',', ' '))
     table = [
         ["System Name", "Body Name", "Body Subtype", "Is Terraformable", "Estimated Scan Value", "Estimated Mapping Value"],
         temp.values()
     ]
     print(tabulate.tabulate(table,headers="firstrow",tablefmt="pretty"))
-    print(f'{current_key}/{len(excel_json)} | {str(current_key/len(excel_json)*100)}%')
+    print(f'{current_key}/{len(excel_json)} | {str(f"{current_key/len(excel_json)*100:.2f}")}%')
+    s = 0
+    for i in range(1, current_key):
+        s += int(excel_json[i]["Estimated Scan Value"]) + int(excel_json[i]["Estimated Mapping Value"])
+    print(f"Total estimated value: {'{:,}'.format(s).replace(',', ' ')}")
     current_key += 1
     
 render_next()
