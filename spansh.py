@@ -174,7 +174,6 @@ def render_next(msg="Displaying next!"):
                 toast.show_toast(f"Head to {temp['System Name']}", f"Body: {temp['Body Name']}", duration=5,threaded=True)
     del temp["Distance To Arrival"]
     del temp["Jumps"]
-    print(temp["Estimated Scan Value"])
     temp["Estimated Scan Value"] = str('{:,}'.format(int(temp["Estimated Scan Value"])).replace(',', ' '))
     temp["Estimated Mapping Value"] = str('{:,}'.format(int(temp["Estimated Mapping Value"])).replace(',', ' '))
     table = [
